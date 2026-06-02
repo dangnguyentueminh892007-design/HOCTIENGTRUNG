@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khu Vườn Phát Âm Tiếng Trung</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --bg-gradient: linear-gradient(180deg, #E0F7FA 0%, #DCEDC8 100%);
+            --board-color: #8D6E63;
+            --board-border: #5D4037;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 720px;
+            background: #ffffffaa;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 8px solid #333;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        /* Bộ chọn chủ đề */
+        .topic-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .topic-btn {
+            background: #FFF;
+            border: 2px solid #AED581;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            color: #33691E;
+        }
+        .topic-btn.active {
+            background: #7CB342;
+            color: white;
+            border-color: #558B2F;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        .score {
+            background: #FBC02D;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Bảng gỗ hiển thị tiếng Trung */
+        .display-board {
+            background: var(--board-color);
+            border: 6px solid var(--board-border);
+            border-radius: 25px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+        }
+        .pinyin {
+            font-size: 22px;
+            color: #FFF59D;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .hanzi {
+            font-size: 34px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        .meaning {
+            font-size: 14px;
+            color: #E0E0E0;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .btn-audio {
+            background: #00E5FF;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Thầy giáo Gấu trúc */
+        .panda-section {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+        .panda-avatar { font-size: 45px; margin-right: 10px; }
+        .panda-bubble { font-size: 13px; color: #2E7D32; font-weight: bold; }
+
+        /* Micro */
+        .mic-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .mic-btn {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(233, 30, 99, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .mic-btn.listening {
+            background: #E91E63;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(233, 30, 99, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
+        }
+        .result-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #546E7A;
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        /* Bộ chọn cấp độ mầm cây */
+        .level-selector {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: auto;
+        }
+        .level-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .level-btn span {
+            margin-top: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #37474F;
+        }
+
+        /* Hiệu ứng thời tiết (Hoa rơi / Mưa rơi) bao phủ toàn màn hình nền */
+        .effect-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .drop {
+            position: absolute;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(750px) rotate(360deg); opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="effect-container" id="effect-zone"></div>
+
+    <div class="phone-container">
+        <div class="topic-selector">
+            <button class="topic-btn active" onclick="changeTopic('fruit')">🍎 Trái Cây</button>
+            <button class="topic-btn" onclick="changeTopic('animal')">🐼 Động Vật</button>
+            <button class="topic-btn" onclick="changeTopic('greet')">💬 Giao Tiếp</button>
+        </div>
+
+        <div class="header">
+            <div class="title">小花园 (Khu Vườn Nhỏ)</div>
+            <div class="score" id="score-board">⭐ 0 Điểm</div>
+        </div>
+
+        <div class="display-board">
+            <div class="pinyin" id="pinyin-display">píng guǒ</div>
+            <div class="hanzi" id="hanzi-display">苹果</div>
+            <div class="meaning" id="meaning-display">(Quả Táo)</div>
+            <button class="btn-audio" onclick="speakSample()">🔊</button>
+        </div>
+
+        <div class="panda-section">
+            <div class="panda-avatar">🐼</div>
+            <div class="panda-bubble" id="panda-msg">Chào bé! Hãy chọn nút phía dưới để đổi từ nhé!</div>
+        </div>
+
+        <div class="mic-section">
+            <button class="mic-btn" id="mic-button" onclick="toggleListening()">🎙️</button>
+            <div class="result-text" id="result-display"></div>
+        </div>
+
+        <div class="level-selector">
+            <button class="level-btn" onclick="changeLevel('don')">
+                <div class="icon-circle" style="background: #FFB74D;">🌱</div>
+                <span>Từ Đơn</span>
+            </button>
+            <button class="level-btn" onclick="changeLevel('phuc')">
+                <div class="icon-circle" style="background: #AED581;">🌿</div>
+                <span>Từ Phức</span>
+            </button>
+            <button class="level-btn" onclick="changeLevel('cau')">
+                <div class="icon-circle" style="background: #F48FB1;">🌸</div>
+                <span>Câu Ngắn</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // KHO DỮ LIỆU ĐA DẠNG TỪ VỰNG THEO CHỦ ĐỀ VÀ CẤP ĐỘ
+        const database = {
+            fruit: {
+                don: { hanzi: '芒', pinyin: 'máng', meaning: 'Xoài (Luyện âm máng)', match: '芒' },
+                phuc: { hanzi: '苹果', pinyin: 'píng guǒ', meaning: 'Quả Táo', match: '苹果' },
+                cau: { hanzi: '我想吃苹果', pinyin: 'wǒ xiǎng chī píng guǒ', meaning: 'Con muốn ăn táo.', match: '我想吃苹果' }
+            },
+            animal: {
+                don: { hanzi: '猫', pinyin: 'māo', meaning: 'Con Mèo', match: '猫' },
+                phuc: { hanzi: '熊猫', pinyin: 'xióng māo', meaning: 'Gấu Trúc', match: '熊猫' },
+                cau: { hanzi: '我 Innovation 喜欢熊猫', pinyin: 'wǒ xǐ huan xióng māo', meaning: 'Con rất thích gấu trúc.', match: '喜欢熊猫' } // Sửa nhẹ ký tự hán để khớp chuẩn
+            },
+            greet: {
+                don: { hanzi: '好', pinyin: 'hǎo', meaning: 'Tốt / Khỏe (Âm hǎo)', match: '好' },
+                phuc: { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'Xin chào', match: '你好' },
+                cau: { hanzi: '老师好', pinyin: 'lǎo shī hǎo', meaning: 'Con chào thầy cô ạ!', match: '老师好' }
+            }
+        };
+
+        let currentTopic = 'fruit';
+        let currentLevel = 'phuc';
+        let score = 0;
+        let isListening = false;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const babySpeechResult = event.results[0][0].transcript;
+                document.getElementById('result-display').innerText = `Bé vừa nói: "${babySpeechResult}"`;
+                
+                const target = database[currentTopic][currentLevel].match;
+                
+                if (babySpeechResult.includes(target) || target.includes(babySpeechResult)) {
+                    // NÓI ĐÚNG -> CỘNG ĐIỂM + TẠO HOA RƠI 🌸
+                    score += 10;
+                    document.getElementById('score-board').innerText = `⭐ ${score} Điểm`;
+                    document.getElementById('panda-msg').innerText = "Tuyệt vời ông mặt trời! Bé nói đúng rồi! Hoa rơi tặng bé nè! 🌸🎉";
+                    makeItRain('🌸', 40);
+                } else {
+                    // NÓI SAI -> TẠO MƯA RƠI 🌧️
+                    document.getElementById('panda-msg').innerText = "Huhu, chưa chính xác rồi. Trời đổ mưa mất rồi, bé thử lại nhé! 🌧️🌿";
+                    makeItRain('💧', 50);
+                }
+            };
+
+            recognition.onend = () => { stopListening(); };
+            recognition.onerror = () => { stopListening(); };
+        }
+
+        // Hàm thay đổi Chủ Đề (Trái Cây / Động Vật / Giao Tiếp)
+        function changeTopic(topic) {
+            currentTopic = topic;
+            // Thay đổi trạng thái nút bấm active
+            document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateDisplay();
+        }
+
+        // Hàm thay đổi Cấp Độ (Từ đơn / Từ phức / Câu ngắn)
+        function changeLevel(level) {
+            currentLevel = level;
+            updateDisplay();
+        }
+
+        // Cập nhật giao diện bảng gỗ dựa vào lựa chọn hiện tại
+        function updateDisplay() {
+            const data = database[currentTopic][currentLevel];
+            document.getElementById('pinyin-display').innerText = data.pinyin;
+            document.getElementById('hanzi-display').innerText = data.hanzi;
+            document.getElementById('meaning-display').innerText = `(${data.meaning})`;
+            document.getElementById('result-display').innerText = "";
+        }
+
+        // Hàm Phát Âm Mẫu
+        function speakSample() {
+            if ('speechSynthesis' in window) {
+                const text = database[currentTopic][currentLevel].hanzi;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.55; // Tốc độ vừa phải cho bé
+                utterance.pitch = 1.3;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function toggleListening() {
+            if (!recognition) return alert("Trình duyệt không hỗ trợ nhận diện âm thanh.");
+            if (!isListening) {
+                isListening = true;
+                document.getElementById('mic-button').classList.add('listening');
+                document.getElementById('panda-msg').innerText = "Cô giáo Gấu Trúc đang nghé tai nghe nè... Bé đọc to lên nhé! 🎙️";
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            document.getElementById('mic-button').classList.remove('listening');
+        }
+
+        // HÀM TẠO HIỆU ỨNG THỜI TIẾT (HOA RƠI HOẶC MƯA RƠI)
+        function makeItRain(symbol, count) {
+            const container = document.getElementById('effect-zone');
+            container.innerHTML = ''; // Xóa hiệu ứng cũ trước đó
+
+            for (let i = 0; i < count; i++) {
+                const drop = document.createElement('div');
+                drop.classList.add('drop');
+                drop.innerText = symbol;
+                
+                // Định vị ngẫu nhiên trên bề mặt màn hình ngang
+                drop.style.left = Math.random() * 100 + '%';
+                // Kích thước ngẫu nhiên cho sinh động
+                drop.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                // Tốc độ rơi ngẫu nhiên từ 1.5s đến 3.5s
+                drop.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                // Thời gian chờ rơi ngẫu nhiên để các hạt rơi rải rác
+                drop.style.animationDelay = Math.random() * 1 + 's';
+
+                container.appendChild(drop);
+            }
+
+            // Tự động dọn sạch các cánh hoa/giọt mưa sau 4 giây để tránh nặng máy
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 4500);
+        }
+    </script>
+</body>
+</html>
